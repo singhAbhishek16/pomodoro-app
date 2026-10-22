@@ -8,16 +8,15 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
-# ----------------------------------------------------------------- config
+
 TZ = ZoneInfo("Asia/Kolkata")
+# headers for sheet
 HEADERS = [
     "start_time", "duration_min", "session_type",
     "complexity", "concentration", "productivity",
     "notes",
 ]
 LEVEL_LABELS = ["Category", "Sub-category", "Topic"]
-
-# dict -> next level has children; list -> last level options; [] -> leaf
 CATEGORIES = {
     "office": {
         "in line with my interest": [],
@@ -34,7 +33,7 @@ CATEGORIES = {
 st.set_page_config(page_title="focus tracker", page_icon="🍅")
 
 
-# ----------------------------------------------------------------- auth
+# password to access application. TODO: to review whether it makes better sense to move this to form submission stage
 def check_password() -> bool:
     if "app_password" not in st.secrets:
         return True
@@ -53,7 +52,7 @@ if not check_password():
     st.stop()
 
 
-# ----------------------------------------------------------------- sheets
+# connection to google spreadsheet
 @st.cache_resource
 def get_sheet():
     gc = gspread.service_account_from_dict(dict(st.secrets["gcp_service_account"]))
@@ -63,6 +62,7 @@ def get_sheet():
     return ws
 
 
+# TODO: to be checked for review tab
 # @st.cache_data(ttl=60)
 # def load_data() -> pd.DataFrame:
     # df = pd.DataFrame(get_sheet().get_all_records(), columns=HEADERS)
@@ -81,7 +81,6 @@ def get_sheet():
     # return df
 
 
-# ----------------------------------------------------------------- session state
 if "phase" not in st.session_state:
     st.session_state.update(phase="idle", start_ts=None, end_ts=None)
 
@@ -101,7 +100,7 @@ def reset():
     st.session_state.update(phase="idle", start_ts=None, end_ts=None)
 
 
-# ----------------------------------------------------------------- category picker
+# for handling categories in form
 def pick_path(tree) -> list[str]:
     """Walk the category tree; one selectbox per level until a leaf."""
     path, node = [], tree
@@ -115,7 +114,7 @@ def pick_path(tree) -> list[str]:
     return path
 
 
-# ----------------------------------------------------------------- end-of-session form
+# form at the end of session
 @st.dialog("how did the session go?")
 def session_form():
     # task = st.text_input("What did you work on?")
@@ -141,7 +140,7 @@ def session_form():
         st.rerun()
 
 
-# ----------------------------------------------------------------- focus tab
+# home page
 def focus_tab():
     phase = st.session_state.phase
 
@@ -170,7 +169,7 @@ def focus_tab():
             session_form()
 
 
-# ----------------------------------------------------------------- review tab
+# TODO: review tab. to come back again here
 # def review_tab():
 #     top = st.columns([3, 1])
 #     if top[1].button("Refresh"):
@@ -209,7 +208,7 @@ def focus_tab():
 #     st.plotly_chart(px.bar(by_hour, x="hour", y="focus_rating"), use_container_width=True)
 
 
-# ----------------------------------------------------------------- layout
+# home page
 st.title("focus tracker")
 tab1, tab2 = st.tabs(["focus", "monthly review (to do)"])
 with tab1:
@@ -218,9 +217,7 @@ with tab1:
 #     # review_tab()
 
 # TODO
-# passwords kaha jayenge
-# deploy karo
-# run test cases on phone
-# aur test cases run karo
+# give up wale alag se dikhne chahiye sheet me
 # documentation page banao
+# to review whether it makes better sense to move this to form submission stage
 # sheet ka naam Sheet1 se v1-streamlit-data karo
