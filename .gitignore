@@ -1,1 +1,7 @@
 .idea/
+# Streamlit agent skills (environment-specific symlinks)
+.agents/skills/developing-with-streamlit
+.claude/skills/developing-with-streamlit
+.streamlit/*
+.pomodoro-venv/*
+v1_streamlit.py
